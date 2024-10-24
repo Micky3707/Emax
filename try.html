@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <title>$.Kitty</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        button, input[type="file"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin: 10px auto;
+            display: block;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        button:hover, input[type="file"]:hover {
+            background-color: #45a049;
+        }
+        label {
+            display: block;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Table</h1>
+    <input type="file" id="jsonFileInput" accept=".json"/>
+    <button id="exportBtn" style="display:none;">Exportar a CSV</button>
+    <table id="estudiosTable">
+        <thead>
+            <tr id="tableHeader"></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <script>
+        function createDynamicTable(data) {
+            const tableHeaderRow = document.getElementById('tableHeader');
+            const tableBody = document.querySelector('#estudiosTable tbody');
+            if (!data || data.length === 0) return;
+
+            const columns = ['estudio', 'codigo', 'nombre', 'pred'];
+            tableHeaderRow.innerHTML = '';
+            columns.forEach(col => {
+                const th = document.createElement('th');
+                th.textContent = capitalizeFirstLetter(col);
+                tableHeaderRow.appendChild(th);
+            });
+
+            tableBody.innerHTML = '';
+            data.forEach(item => {
+                const row = document.createElement('tr');
+
+                const estudioCell = document.createElement('td');
+                estudioCell.textContent = item.estudio || 'NA';
+                row.appendChild(estudioCell);
+
+                const codigoCell = document.createElement('td');
+                codigoCell.textContent = item.codigo || 'NA';
+                row.appendChild(codigoCell);
+
+                const nombreCell = document.createElement('td');
+                nombreCell.textContent = item.nombre || 'NA';
+                row.appendChild(nombreCell);
+
+                const predCell = document.createElement('td');
+                const predItems = item.pred || [];
+                predItems.forEach(predItem => {
+                    const label = document.createElement('label');
+                    label.textContent = predItem.nombre;
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = predItem.codigo;
+                    checkbox.checked = predItem.selected || false;
+                    label.appendChild(checkbox);
+                    predCell.appendChild(label);
+                    predCell.appendChild(document.createElement('br'));
+                });
+                row.appendChild(predCell);
+                tableBody.appendChild(row);
+            });
+            document.getElementById('exportBtn').style.display = 'block';
+        }
+
+        function exportToCSV(data) {
+            const rows = [];
+            rows.push(['estudios', 'codigo', 'nombre', 'prediccion', 'codigo_prediccion']); // Header
+
+            data.forEach(item => {
+                const selectedPredictions = item.pred.filter(pred => pred.selected);
+                if (selectedPredictions.length > 0) {
+                    selectedPredictions.forEach(pred => {
+                        rows.push([item.estudio, item.codigo, item.nombre, pred.nombre, pred.codigo]);
+                    });
+                }
+            });
+
+            if (rows.length === 1) {
+                alert('No hay predicciones seleccionadas para exportar.');
+                return; // Si no hay datos para exportar, salimos de la función
+            }
+
+            const csvContent = rows.map(e => e.join(",")).join("\n");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'estudios_predictions.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        document.getElementById('jsonFileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const jsonData = JSON.parse(e.target.result);
+                    createDynamicTable(jsonData.values);
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const tableData = Array.from(document.querySelectorAll('#estudiosTable tbody tr')).map(row => {
+                const cells = row.querySelectorAll('td');
+                const item = {};
+                cells.forEach((cell, index) => {
+                    const key = document.querySelectorAll('#tableHeader th')[index].textContent.toLowerCase();
+                    item[key] = cell.textContent;
+                });
+                item.pred = Array.from(row.querySelectorAll('input[type="checkbox"]')).map(checkbox => ({
+                    nombre: checkbox.parentNode.textContent.trim(),
+                    codigo: checkbox.value,
+                    selected: checkbox.checked
+                }));
+                return item;
+            });
+            exportToCSV(tableData);
+        });
+    </script>
+</body>
+</html>

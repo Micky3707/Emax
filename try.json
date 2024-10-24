@@ -1,0 +1,77 @@
+{
+    "values": [
+      {
+        "estudio": "Cultivo de mecobacterias",
+        "codigo": "1329.0",
+        "nombre": "Cultivo de Mycobacterium",
+        "pred": [
+          {
+            "nombre": "Cultivo de Mycobacterium",
+            "codigo": "1329",
+            "selected": true
+          },
+          {
+            "nombre": "Cultivo de Mycobacterium en Expectoración",
+            "codigo": "5287",
+            "selected": false
+          },
+          {
+            "nombre": "Cultivo de Anaerobios",
+            "codigo": "2061",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "estudio": "Antigeno de cripto",
+        "codigo": null,
+        "nombre": null,
+        "pred": [
+          {
+            "nombre": "Antígeno de Cryptococcus neoformans",
+            "codigo": "1292",
+            "selected": false
+          },
+          {
+            "nombre": "Antígeno de Cryptococcus neoformans en LCR",
+            "codigo": "2223",
+            "selected": true
+          },
+          {
+            "nombre": "Antígeno de Adenovirus",
+            "codigo": "2227",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "estudio": "NA",
+        "codigo": "2225.0",
+        "nombre": "Antígeno de Giardia lamblia y Cryptosporidium",
+        "pred": []
+      },
+      {
+        "estudio": "Cultivo de hongos",
+        "codigo": "1328.0",
+        "nombre": "Cultivo de Hongos",
+        "pred": [
+          {
+            "nombre": "Cultivo de Hongos",
+            "codigo": "1328",
+            "selected": false
+          },
+          {
+            "nombre": "Cultivo de Mycobacterium",
+            "codigo": "1329",
+            "selected": true
+          },
+          {
+            "nombre": "Cultivo de Anaerobios",
+            "codigo": "2061",
+            "selected": true
+          }
+        ]
+      }
+    ]
+  }
+  
